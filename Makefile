@@ -1,4 +1,4 @@
-.PHONY: up down restart logs purge ensure-env wait-for-backend wait-for-frontend open-browser show-summary kill-port
+.PHONY: up down restart logs purge ensure-env wait-for-backend wait-for-frontend open-browser show-summary kill-port restart-frontend
 
 # Автоопределение сервисов из podman-compose.yml
 BACKEND_SERVICE := $(shell grep -E '^[[:space:]]*[A-Za-z0-9_-]+:' podman-compose.yml 2>/dev/null \
@@ -146,3 +146,22 @@ purge:
 	podman pod rm -f $$(podman pod ps -q) 2>/dev/null || true; \
 	podman network prune -f 2>/dev/null || true; \
 	podman image prune -af 2>/dev/null || true
+
+# Перезапуск только фронтенда
+restart-frontend:
+	@if [ -n "$(FRONTEND_SERVICE)" ]; then \
+		echo "🔄 Перезапуск фронтенда ($(FRONTEND_SERVICE))..."; \
+		podman-compose restart $(FRONTEND_SERVICE); \
+		$(MAKE) wait-for-frontend; \
+		echo "✅ Фронтенд перезапущен"; \
+	else \
+		echo "❌ Сервис фронтенда не найден в podman-compose.yml"; \
+		exit 1; \
+	fi
+logs-frontend:
+	@if [ -n "$(FRONTEND_SERVICE)" ]; then \
+		podman-compose logs -f $(FRONTEND_SERVICE); \
+	else \
+		echo "❌ Сервис фронтенда не найден в podman-compose.yml"; \
+	fi
+

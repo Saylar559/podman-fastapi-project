@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import IdleWarningModal from "../components/IdleWarningModal";
 import { useAuth } from "../hooks/useAuth";
 import { useUsers } from "../hooks/useUsers";
@@ -7,6 +7,8 @@ import "./AdminPage.css";
 
 export default function AdminPage() {
   const { logout } = useAuth();
+  const navigate = useNavigate(); // ✅ для редиректа после выхода
+
   const [search, setSearch] = useState("");
   const [role, setRole] = useState("");
   const [page, setPage] = useState(1);
@@ -16,7 +18,7 @@ export default function AdminPage() {
     search,
     role,
     limit,
-    offset: (page - 1) * limit
+    offset: (page - 1) * limit,
   });
 
   const handleSearchChange = (e) => {
@@ -36,16 +38,22 @@ export default function AdminPage() {
     setFilters({ search, role, limit, offset: (newPage - 1) * limit });
   };
 
+  // ✅ обработчик выхода с редиректом
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });
+  };
+
   return (
     <div className="admin-wrapper">
-      <IdleWarningModal timeoutMinutes={15} onLogout={logout} />
+      <IdleWarningModal timeoutMinutes={15} onLogout={handleLogout} />
 
       <header className="admin-header">
         <h1 className="admin-title">Админ-панель</h1>
         <nav className="admin-nav">
           <Link to="/admin/users" className="nav-link">Пользователи</Link>
           <Link to="/admin/stats" className="nav-link">Статистика</Link>
-          <button onClick={logout} className="logout-btn">Выйти</button>
+          <button onClick={handleLogout} className="logout-btn">Выйти</button>
         </nav>
       </header>
 

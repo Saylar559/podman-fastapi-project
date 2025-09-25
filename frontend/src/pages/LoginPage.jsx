@@ -1,41 +1,43 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 import "./LoginPage.css";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const { handleLogin, loading } = useAuth();
   const navigate = useNavigate();
-
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     try {
-      const formData = new URLSearchParams();
-      formData.append("username", username);
-      formData.append("password", password);
+      // handleLogin должен вернуть роль
+      const role = await handleLogin(username, password);
 
-      const res = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: formData.toString(),
-      });
-
-      if (!res.ok) throw new Error("Неверный логин или пароль");
-
-      const data = await res.json();
-      localStorage.setItem("access_token", data.access_token);
-      localStorage.setItem("role", data.role);
-
-      if (data.role === "admin") navigate("/admin");
-      else if (data.role === "user") navigate("/work");
-      else navigate("/login");
+      switch (role) {
+        case "admin":
+          navigate("/admin");
+          break;
+        case "user":
+          navigate("/work");
+          break;
+        case "buh_user":
+          navigate("/buh_user");
+          break;
+        default:
+          navigate("/login");
+      }
     } catch (err) {
-      setError(err.message || "Ошибка входа");
+      // axios/fetch могут кидать разные ошибки
+      const message =
+        err?.response?.data?.detail ||
+        err?.message ||
+        "Ошибка входа";
+      setError(message);
     }
   };
 
@@ -51,6 +53,7 @@ export default function LoginPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
+              autoComplete="username"
             />
           </div>
           <div className="form-group">
@@ -60,10 +63,13 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              autoComplete="current-password"
             />
           </div>
           {error && <p className="error-text">{error}</p>}
-          <button type="submit" className="primary-btn">Войти</button>
+          <button type="submit" className="primary-btn" disabled={loading}>
+            {loading ? "Вход..." : "Войти"}
+          </button>
         </form>
       </div>
     </div>

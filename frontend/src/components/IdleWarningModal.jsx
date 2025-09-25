@@ -9,8 +9,8 @@ export default function IdleWarningModal({ timeoutMinutes = 15 }) {
 
   const resetIdleTime = useCallback(() => {
     setIdleTime(0);
-    if (showModal) setShowModal(false);
-  }, [showModal]);
+    setShowModal(false);
+  }, []);
 
   // Отслеживаем действия пользователя
   useEffect(() => {
@@ -39,8 +39,8 @@ export default function IdleWarningModal({ timeoutMinutes = 15 }) {
 
   const handleStay = async () => {
     try {
-      const res = await api.post("/auth/refresh", {}, { withCredentials: true });
-      setAuth(res.data.access_token, res.data.role); // обновляем токен и роль
+      const res = await api.post("/api/refresh", {}, { withCredentials: true });
+      setAuth(res.data.access_token, res.data.role);
       resetIdleTime();
     } catch {
       handleLogout();
@@ -49,7 +49,7 @@ export default function IdleWarningModal({ timeoutMinutes = 15 }) {
 
   const handleLogout = () => {
     setShowModal(false);
-    logout(); // централизованный выход
+    logout();
   };
 
   if (!showModal) return null;
@@ -60,7 +60,7 @@ export default function IdleWarningModal({ timeoutMinutes = 15 }) {
         <h3>Вы бездействуете</h3>
         <p>Сессия скоро завершится. Хотите остаться в системе?</p>
         <div style={styles.buttons}>
-          <button onClick={handleStay}>Остаться</button>
+          <button autoFocus onClick={handleStay}>Остаться</button>
           <button onClick={handleLogout}>Выйти</button>
         </div>
       </div>

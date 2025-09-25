@@ -1,29 +1,34 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { useAuth } from "./hooks/useAuth";
 
 import LoginPage from "./pages/LoginPage";
 import AdminPage from "./pages/AdminPage";
-import ManagerPage from "./pages/ManagerPage"; // 🔹 вместо WorkPage
-import NotFoundPage from "./pages/NotFoundPage"; // 🔹 добавим файл ниже
+import ManagerPage from "./pages/ManagerPage";
+import NotFoundPage from "./pages/NotFoundPage";
+import Buh_escroy from "./pages/Buh_escroy";
 
 export default function App() {
   return (
     <Router>
       <Routes>
-        {/* Логин */}
+        {/* Публичные роуты */}
         <Route path="/login" element={<LoginPage />} />
 
-        {/* Админка — только для admin */}
+        {/* Защищённые роуты */}
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
           <Route path="/admin" element={<AdminPage />} />
         </Route>
 
-        {/* Рабочая зона — только для user */}
         <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
           <Route path="/work" element={<ManagerPage />} />
         </Route>
 
-        {/* Корень — редирект по роли */}
+        <Route element={<ProtectedRoute allowedRoles={["buh_user"]} />}>
+          <Route path="/buh_user" element={<Buh_escroy />} />
+        </Route>
+
+        {/* Главная страница → редирект по роли */}
         <Route path="/" element={<RoleRedirect />} />
 
         {/* 404 */}
@@ -34,8 +39,25 @@ export default function App() {
 }
 
 function RoleRedirect() {
-  const role = localStorage.getItem("role");
-  if (role === "admin") return <Navigate to="/admin" replace />;
-  if (role === "user") return <Navigate to="/work" replace />;
+  const { role, loading } = useAuth();
+
+  if (loading) {
+    return <div style={{ padding: "2rem", textAlign: "center" }}>Загрузка...</div>;
+  }
+
+  // Словарь редиректов по ролям
+  const redirects = {
+    admin: "/admin",
+    user: "/work",
+    buh_user: "/buh_user",
+  };
+
+  // Если роль известна и есть маршрут → редиректим
+  if (role && redirects[role.trim().toLowerCase()]) {
+    return <Navigate to={redirects[role.trim().toLowerCase()]} replace />;
+  }
+
+  // Если роли нет или она не распознана → на логин
   return <Navigate to="/login" replace />;
 }
+

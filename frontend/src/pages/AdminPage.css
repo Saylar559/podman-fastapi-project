@@ -4,34 +4,55 @@
   --danger: #D63031;
   --bg: #F5F6FA;
   --text: #1A1A1A;
-  --card-bg: rgba(255,255,255,0.85);
-  --shadow: 0 4px 20px rgba(0,0,0,0.05);
+  --card-bg: #fff;
+  --shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 body {
   font-family: "Inter", sans-serif;
   background-color: var(--bg);
   color: var(--text);
+  line-height: 1.5;
 }
 
 .admin-wrapper {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  padding: 0 1rem;
+}
+
+@media (min-width: 768px) {
+  .admin-wrapper {
+    padding: 0 2rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .admin-wrapper {
+    padding: 0 4rem;
+  }
 }
 
 .admin-header {
   background: var(--card-bg);
-  backdrop-filter: blur(10px);
-  padding: 1rem 2rem;
+  padding: 1rem 0;
   box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
+@media (min-width: 768px) {
+  .admin-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
 .admin-title {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: 600;
 }
 
@@ -41,29 +62,33 @@ body {
   align-items: center;
 }
 
-.nav-link {
+.admin-nav .nav-link,
+.admin-nav .logout-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
   padding: 8px 14px;
+  border-radius: 6px;
+  font-weight: 500;
+  text-align: center;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nav-link {
   background: var(--primary);
   color: #fff;
-  border-radius: 6px;
   text-decoration: none;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
 }
 .nav-link:hover {
   background: var(--primary-hover);
 }
 
 .logout-btn {
-  margin-left: auto;
-  padding: 8px 14px;
   background: var(--danger);
   color: #fff;
   border: none;
-  border-radius: 6px;
   cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
 }
 .logout-btn:hover {
   background-color: #E74C3C;
@@ -71,17 +96,22 @@ body {
 
 .admin-main {
   flex: 1;
-  padding: 2rem;
+  padding: 2rem 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .filters {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .input, .select {
-  padding: 10px;
+  padding: 10px 12px;
   border-radius: 6px;
   border: 1px solid #ccc;
   font-size: 0.95rem;
@@ -89,13 +119,12 @@ body {
 }
 .input:focus, .select:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(0,82,204,0.2);
+  box-shadow: 0 0 0 2px rgba(0,82,204,0.15);
   outline: none;
 }
 
 .content-card {
   background: var(--card-bg);
-  backdrop-filter: blur(6px);
   border-radius: 12px;
   padding: 2rem;
   box-shadow: var(--shadow);
@@ -109,18 +138,19 @@ body {
 
 .pagination {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   margin-top: 20px;
+  flex-wrap: wrap;
 }
 
 .page-btn {
-  padding: 6px 12px;
+  padding: 8px 14px;
   border-radius: 6px;
   border: none;
   cursor: pointer;
   background: #dfe6e9;
   color: #2d3436;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 .page-btn:hover {
   background: var(--primary-hover);

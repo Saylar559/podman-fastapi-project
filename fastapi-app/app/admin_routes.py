@@ -5,6 +5,7 @@ from sqlalchemy import or_
 from app import models, schemas
 from app.db import get_db
 from app.auth import get_password_hash, get_current_admin
+from app.models import UserRole
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -14,7 +15,7 @@ def list_users(
     db: Session = Depends(get_db),
     _: models.User = Depends(get_current_admin),
     search: str | None = Query(None, description="Поиск по username, email или full_name"),
-    role: str | None = Query(None, description="Фильтр по роли"),
+    role: UserRole | None = Query(None, description="Фильтр по роли"),
     limit: int = Query(20, ge=1, le=100, description="Максимум записей за запрос"),
     offset: int = Query(0, ge=0, description="Смещение для пагинации")
 ):
@@ -22,13 +23,12 @@ def list_users(
 
     if search:
         like_pattern = f"%{search}%"
-        query = query.filter(
-            or_(
-                models.User.username.ilike(like_pattern),
-                models.User.email.ilike(like_pattern),
-                models.User.full_name.ilike(like_pattern)
-            )
-        )
+        filters = [models.User.username.ilike(like_pattern)]
+        if hasattr(models.User, "email"):
+            filters.append(models.User.email.ilike(like_pattern))
+        if hasattr(models.User, "full_name"):
+            filters.append(models.User.full_name.ilike(like_pattern))
+        query = query.filter(or_(*filters))
 
     if role:
         query = query.filter(models.User.role == role)
@@ -48,13 +48,22 @@ def create_user(
     if not user_in.username or not user_in.password:
         raise HTTPException(status_code=400, detail="Имя пользователя и пароль обязательны")
 
+    # Проверка роли
+    try:
+        role = UserRole(user_in.role)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Недопустимая роль. Возможные: {[r.value for r in UserRole]}"
+        )
+
     if db.query(models.User).filter(models.User.username == user_in.username).first():
         raise HTTPException(status_code=400, detail="Пользователь уже существует")
 
     user = models.User(
         username=user_in.username,
         hashed_password=get_password_hash(user_in.password),
-        role=user_in.role
+        role=role
     )
     db.add(user)
     db.commit()

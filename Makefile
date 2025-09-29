@@ -164,3 +164,16 @@ logs-frontend:
 	else \
 		echo "❌ Сервис фронтенда не найден в podman-compose.yml"; \
 	fi
+push:
+	git add .
+	git commit -m "$(msg)"
+	git push origin master
+
+status:
+	git status
+
+log:
+	git log --oneline --graph --decorate
+
+pull:
+	git pull origin master --rebase

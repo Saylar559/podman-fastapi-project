@@ -77,6 +77,15 @@ export default function AdminPage() {
     });
   };
 
+  // проверка активности (онлайн < 5 минут)
+  const isOnline = (lastActivity) => {
+    if (!lastActivity) return false;
+    const diff = Date.now() - new Date(lastActivity).getTime();
+    return diff < 5 * 60 * 1000;
+  };
+
+  const totalPages = Math.ceil(total / limit);
+
   return (
     <div className="admin-wrapper">
       <IdleWarningModal timeoutMinutes={15} onLogout={handleLogout} />
@@ -179,68 +188,152 @@ export default function AdminPage() {
                       <th>Username</th>
                       <th>Email</th>
                       <th>Роль</th>
+                      <th>Последний вход</th>
+                      <th>Активность</th>
+                      <th>Статус</th>
                       <th>Действия</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    {users.map((u) => (
-                      <tr key={u.username}>
-                        <td>{u.username}</td>
-                        <td>{u.email}</td>
-                        <td>
-                          <select
-                            value={editRole[u.username] ?? u.role}
-                            onChange={(e) => handleRoleChange(u.username, e.target.value)}
-                            className="select"
-                          >
-                            <option value="admin">Админ</option>
-                            <option value="buh_user">Бухгалтер</option>
-                            <option value="viewer">Просмотр</option>
-                          </select>
-                          {editRole[u.username] && editRole[u.username] !== u.role && (
-                            <button
-                              onClick={() => handleSaveRole(u.username)}
-                              className="analyze"
-                              style={{ marginLeft: "6px" }}
-                              disabled={loading}
-                            >
-                              Сохранить
-                            </button>
-                          )}
-                        </td>
-                        <td>
-                          <button
-                            onClick={() => removeUser(u.username)}
-                            className="logout-btn"
-                            disabled={loading}
-                          >
-                            Удалить
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
+<tbody>
+  {users.map((u) => (
+    <tr key={u.username}>
+      <td style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <span
+          className={`status-dot ${isOnline(u.last_activity) ? "online" : "offline"}`}
+          title={
+            u.last_activity
+              ? `Последняя активность: ${new Date(u.last_activity).toLocaleString()}`
+              : "Нет данных"
+          }
+        />
+        {u.username}
+      </td>
+      <td>{u.email}</td>
+      <td>
+        <select
+          value={editRole[u.username] ?? u.role}
+          onChange={(e) => handleRoleChange(u.username, e.target.value)}
+          className="select"
+        >
+          <option value="admin">Админ</option>
+          <option value="buh_user">Бухгалтер</option>
+          <option value="viewer">Просмотр</option>
+        </select>
+        {editRole[u.username] && editRole[u.username] !== u.role && (
+          <button
+            onClick={() => handleSaveRole(u.username)}
+            className="analyze"
+            style={{ marginLeft: "6px" }}
+            disabled={loading}
+          >
+            Сохранить
+          </button>
+        )}
+      </td>
+      <td>{u.last_login ? new Date(u.last_login).toLocaleString() : "—"}</td>
+      <td>{u.last_activity ? new Date(u.last_activity).toLocaleString() : "—"}</td>
+
+      {/* 👇 Новый столбец «Статус» */}
+      <td>
+        <input
+          type="checkbox"
+          checked={u.is_active}
+          onChange={(e) => updateUser(u.username, { is_active: e.target.checked })}
+          disabled={loading}
+          title={u.is_active ? "Аккаунт активен" : "Аккаунт заблокирован"}
+        />
+      </td>
+
+      <td>
+        <button
+          onClick={() => removeUser(u.username)}
+          className="logout-btn"
+          disabled={loading}
+        >
+          Удалить
+        </button>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
                 </table>
               ) : (
                 <p className="placeholder-text">Пользователей пока нет</p>
               )}
             </section>
-
             {/* Пагинация */}
             <div className="pagination">
-              {Array.from({ length: Math.ceil(total / limit) }, (_, i) => (
-                <button
-                  key={i}
-                  onClick={() => {
-                    setPage(i + 1);
-                    setFilters({ search, role: roleFilter ?? undefined, limit, offset: i * limit });
-                  }}
-                  className={`page-btn ${page === i + 1 ? "active" : ""}`}
-                  disabled={loading}
-                >
-                  {i + 1}
-                </button>
-              ))}
+              {/* Назад */}
+              <button
+                onClick={() => {
+                  if (page > 1) {
+                    setPage(page - 1);
+                    setFilters({
+                      search,
+                      role: roleFilter ?? undefined,
+                      limit,
+                      offset: (page - 2) * limit,
+                    });
+                  }
+                }}
+                disabled={page === 1 || loading}
+                className="page-btn"
+              >
+                «
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((p) => {
+                  // показываем первую, последнюю, текущую и +/-1 от текущей
+                  return (
+                    p === 1 ||
+                    p === totalPages ||
+                    (p >= page - 1 && p <= page + 1)
+                  );
+                })
+                .map((p, idx, arr) => {
+                  const prev = arr[idx - 1];
+                  return (
+                    <span key={p}>
+                      {prev && p - prev > 1 && <span className="ellipsis">…</span>}
+                      <button
+                        onClick={() => {
+                          setPage(p);
+                          setFilters({
+                            search,
+                            role: roleFilter ?? undefined,
+                            limit,
+                            offset: (p - 1) * limit,
+                          });
+                        }}
+                        className={`page-btn ${page === p ? "active" : ""}`}
+                        disabled={loading}
+                      >
+                        {p}
+                      </button>
+                    </span>
+                  );
+                })}
+
+              {/* Вперёд */}
+              <button
+                onClick={() => {
+                  if (page < totalPages) {
+                    setPage(page + 1);
+                    setFilters({
+                      search,
+                      role: roleFilter ?? undefined,
+                      limit,
+                      offset: page * limit,
+                    });
+                  }
+                }}
+                disabled={page === totalPages || loading}
+                className="page-btn"
+              >
+                »
+              </button>
             </div>
           </>
         )}

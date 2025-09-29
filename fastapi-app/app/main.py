@@ -1,5 +1,6 @@
 import logging
 import os
+from datetime import datetime
 from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -55,6 +56,8 @@ async def get_me(current_user=Depends(get_current_user)):
         "username": current_user.username,
         "email": current_user.email,
         "role": current_user.role,
+        "last_login": current_user.last_login,
+        "last_activity": current_user.last_activity,
     }
 
 # favicon
@@ -76,6 +79,30 @@ async def log_requests(request: Request, call_next):
         logger.exception(f"❌ Ошибка при обработке {request.method} {request.url.path}: {e}")
         return JSONResponse(status_code=500, content={"detail": "Internal Server Error"})
     logger.info(f"⬅️ {request.method} {request.url.path} -> {response.status_code}")
+    return response
+
+# 🔹 5.1 Middleware активности пользователей
+@app.middleware("http")
+async def update_last_activity(request: Request, call_next):
+    response = await call_next(request)
+    try:
+        user = None
+        try:
+            user = await get_current_user.__wrapped__(
+                token=request.headers.get("authorization", "").replace("Bearer ", ""),
+                db=SessionLocal()
+            )
+        except Exception:
+            pass
+
+        if user:
+            with SessionLocal() as db:
+                db.query(models.User).filter(models.User.id == user.id).update(
+                    {"last_activity": datetime.utcnow()}
+                )
+                db.commit()
+    except Exception as e:
+        logger.warning(f"⚠ Ошибка обновления last_activity: {e}")
     return response
 
 # 6. Глобальные обработчики ошибок
@@ -153,7 +180,7 @@ def startup_event():
 
 # 8. Подключение маршрутов
 app.include_router(auth.router, prefix="/api")
-app.include_router(admin_routes.router, prefix="/api")
+app.include_router(admin_routes.router, prefix="/api")  # ✅ теперь admin_routes имеет prefix="/admin"
 app.include_router(buh_routes.router, prefix="/api")
 app.include_router(excel.router, prefix="/api")
 app.include_router(users.router, prefix="/api")

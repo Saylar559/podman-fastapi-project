@@ -1,4 +1,5 @@
 from typing import Literal, Optional
+from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from app.models import UserRole
 
@@ -23,10 +24,14 @@ class UserUpdate(BaseModel):
     email: Optional[EmailStr] = Field(None, description="Новый email")
     role: Optional[UserRole] = Field(None, description="Новая роль")
     password: Optional[str] = Field(None, min_length=6, max_length=128, description="Новый пароль")
+    is_active: Optional[bool] = Field(None, description="Активен ли пользователь")  # 👈 добавили
 
 
 class UserOut(UserBase):
     id: int
+    last_login: Optional[datetime] = None
+    last_activity: Optional[datetime] = None
+    is_active: bool  # 👈 добавили
     model_config = ConfigDict(from_attributes=True)
 
 

@@ -1,27 +1,63 @@
 import api from "./api";
 
-// получить список пользователей
-export async function getUsers(params) {
-  const res = await api.get("/admin/users", { params });
-  return res.data; // { users: [...], total: N }
+/**
+ * Получить список пользователей
+ * @param {Object} params { search, role, limit, offset, order_by }
+ * @returns {Promise<{users: Array, total: number}>}
+ */
+export async function getUsers(params = {}) {
+  try {
+    const res = await api.get("/admin/users", { params });
+    return res.data; // { users: [...], total: N }
+  } catch (err) {
+    console.error("Ошибка при получении списка пользователей:", err);
+    throw err;
+  }
 }
 
-// создать пользователя
+/**
+ * Создать пользователя
+ * @param {Object} data { username, email, password, role }
+ * @returns {Promise<{users: Array, total: number}>}
+ */
 export async function createUser(data) {
-  // data = { username, email, password, role }
-  const res = await api.post("/admin/users", data);
-  return res.data; // { users: [...], total: N }
+  try {
+    const res = await api.post("/admin/users", data);
+    return res.data;
+  } catch (err) {
+    console.error("Ошибка при создании пользователя:", err);
+    throw err;
+  }
 }
 
-// удалить пользователя
+/**
+ * Удалить пользователя
+ * @param {string} username
+ * @returns {Promise<{users: Array, total: number}>}
+ */
 export async function deleteUser(username) {
-  const res = await api.delete(`/admin/users/${username}`);
-  return res.data; // { users: [...], total: N }
+  try {
+    const res = await api.delete(`/admin/users/${encodeURIComponent(username)}`);
+    return res.data;
+  } catch (err) {
+    console.error("Ошибка при удалении пользователя:", err);
+    throw err;
+  }
 }
 
-// обновить пользователя (например, роль)
+/**
+ * Обновить пользователя (роль, email, пароль, статус)
+ * @param {string} username
+ * @param {Object} payload { role?, email?, password?, is_active? }
+ * @returns {Promise<{users: Array, total: number}>}
+ */
 export async function updateUser(username, payload) {
-  const res = await api.put(`/admin/users/${username}`, payload);
-  return res.data; // { users: [...], total: N }
+  try {
+    const res = await api.put(`/admin/users/${encodeURIComponent(username)}`, payload);
+    return res.data;
+  } catch (err) {
+    console.error("Ошибка при обновлении пользователя:", err);
+    throw err;
+  }
 }
 

@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Cookie
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -111,6 +112,14 @@ async def login(
         )
 
     role = user.role.value  # ✅ всегда строка
+
+    # 🔹 Обновляем время последнего входа
+    user.last_login = datetime.utcnow()
+    try:
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logging.error(f"❌ Ошибка при обновлении last_login для {user.username}: {e}")
 
     access_token = create_access_token(
         {"sub": str(user.id), "role": role},

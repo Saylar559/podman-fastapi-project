@@ -1,38 +1,47 @@
-import { useState, useEffect } from "react";
-import { getUsers, createUser, deleteUser, updateUser } from "../api/admin";
+import { useState, useEffect, useCallback } from "react";
+import {
+  getUsers,
+  createUser,
+  deleteUser,
+  updateUser as apiUpdateUser, // 👈 API‑функция
+} from "../api/admin";
 
 export function useUsers(initialFilters = {}) {
   const [users, setUsers] = useState([]);
   const [total, setTotal] = useState(0);
   const [filters, setFilters] = useState(initialFilters);
+  const [loading, setLoading] = useState(false);
 
   // загрузка списка пользователей
-  const load = async () => {
+  const load = useCallback(async () => {
+    setLoading(true);
     try {
       const res = await getUsers(filters);
       setUsers(res.users);
       setTotal(res.total);
     } catch (err) {
       console.error("Ошибка при загрузке пользователей:", err);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [filters]);
 
   useEffect(() => {
     load();
-  }, [filters]);
+  }, [load]);
 
   return {
     users,
     total,
     filters,
     setFilters,
+    loading,
 
     // создание пользователя
     addUser: async (data) => {
       try {
-        const res = await createUser(data);
-        setUsers(res.users);
-        setTotal(res.total);
+        await createUser(data);
+        await load(); // 👈 сразу обновляем список
       } catch (err) {
         console.error("Ошибка при создании пользователя:", err);
         throw err;
@@ -42,21 +51,19 @@ export function useUsers(initialFilters = {}) {
     // удаление пользователя
     removeUser: async (username) => {
       try {
-        const res = await deleteUser(username);
-        setUsers(res.users);
-        setTotal(res.total);
+        await deleteUser(username);
+        await load(); // 👈 обновляем список
       } catch (err) {
         console.error("Ошибка при удалении пользователя:", err);
         throw err;
       }
     },
 
-    // обновление пользователя (например, роли)
+    // обновление пользователя (роль, статус и т.д.)
     updateUser: async (username, payload) => {
       try {
-        const res = await updateUser(username, payload);
-        setUsers(res.users);
-        setTotal(res.total);
+        await apiUpdateUser(username, payload); // 👈 вызываем API
+        await load(); // 👈 перезагружаем список
       } catch (err) {
         console.error("Ошибка при обновлении пользователя:", err);
         throw err;

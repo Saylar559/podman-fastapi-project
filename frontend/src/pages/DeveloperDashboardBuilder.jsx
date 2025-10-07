@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from "react";
 import "./DeveloperDashboardBuilder.css";
-export default function DeveloperDashboardBuilder({ token, role, baseUrl = "/api" }) {
+import { useAuth } from "../hooks/useAuth";
+
+export default function DeveloperDashboardBuilder({
+  token,
+  role,
+  baseUrl = "http://localhost:8000/api",
+}) {
+  const { handleLogout } = useAuth();
   const [dashboards, setDashboards] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Проверка доступа
   const normalizedRole = role?.trim().toLowerCase();
   const hasAccess = normalizedRole === "developer" || normalizedRole === "admin";
 
@@ -22,9 +28,7 @@ export default function DeveloperDashboardBuilder({ token, role, baseUrl = "/api
       },
     })
       .then(async (r) => {
-        if (!r.ok) {
-          throw new Error(`Ошибка ${r.status}`);
-        }
+        if (!r.ok) throw new Error(`Ошибка ${r.status}`);
         return r.json();
       })
       .then((data) => setDashboards(data))
@@ -32,7 +36,6 @@ export default function DeveloperDashboardBuilder({ token, role, baseUrl = "/api
       .finally(() => setLoading(false));
   }, [hasAccess, token, baseUrl]);
 
-  // Нет доступа
   if (!hasAccess) {
     return (
       <section className="content-card">
@@ -42,34 +45,36 @@ export default function DeveloperDashboardBuilder({ token, role, baseUrl = "/api
     );
   }
 
-  // Загрузка
-  if (loading) {
-    return <div style={{ padding: "2rem" }}>Загрузка дашбордов...</div>;
-  }
+  if (loading) return <div className="loader">Загрузка дашбордов...</div>;
+  if (error) return <div className="error-text">Ошибка загрузки: {error}</div>;
 
-  // Ошибка
-  if (error) {
-    return (
-      <div style={{ padding: "2rem", color: "red" }}>
-        Ошибка загрузки: {error}
-      </div>
-    );
-  }
-
-  // Основной UI
   return (
-    <section className="content-card">
-      <h2>Конструктор дашбордов</h2>
+    <section className="dashboard-page">
+      {/* 🔹 Верхняя панель */}
+      <div className="dashboard-header">
+        <h2>Конструктор дашбордов</h2>
+        <div className="dashboard-actions">
+          <button className="primary-btn">+ Новый дашборд</button>
+          <button className="logout-btn" onClick={handleLogout}>Выйти</button>
+        </div>
+      </div>
+
+      {/* 🔹 Список дашбордов */}
       {dashboards.length === 0 ? (
-        <p>Пока нет дашбордов. Создайте новый!</p>
+        <p className="empty-text">Пока нет дашбордов. Создайте новый!</p>
       ) : (
-        <ul>
+        <div className="dashboard-grid">
           {dashboards.map((d) => (
-            <li key={d.id}>
-              <strong>{d.title}</strong> — {d.description || "без описания"}
-            </li>
+            <div key={d.id} className="dashboard-card">
+              <h3>{d.title}</h3>
+              <p>{d.description || "без описания"}</p>
+              <div className="card-actions">
+                <button className="secondary-btn">Открыть</button>
+                <button className="danger-btn">Удалить</button>
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </section>
   );

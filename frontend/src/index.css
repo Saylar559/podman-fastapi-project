@@ -14,20 +14,8 @@ body {
 }
 
 /* Заголовки */
-.title {
-  font-size: 2.5em;
-  font-weight: 700;
-  color: #272727;
-  text-align: center;
-  margin-bottom: 0.5em;
-}
-.subtitle {
-  font-size: 1.5em;
-  font-weight: 400;
-  color: #4a4a4a;
-  text-align: center;
-  margin-bottom: 1em;
-}
+.title { font-size: 2.5em; font-weight: 700; text-align: center; margin-bottom: 0.5em; }
+.subtitle { font-size: 1.5em; font-weight: 400; text-align: center; margin-bottom: 1em; }
 
 /* Drag & Drop */
 #excel_drop_zone {
@@ -41,49 +29,32 @@ body {
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 #excel_drop_zone.dragover {
-  background-color: #e0e0e0;
+  background-color: #e3f2fd;
   border-color: #2196F3;
+  animation: pulse 1s infinite;
 }
-
-/* Кнопки */
-button,
-.download-link {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 50px;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  text-decoration: none;
-  display: inline-block;
-  margin-top: 10px;
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.4); }
+  70% { box-shadow: 0 0 15px 15px rgba(33, 150, 243, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0); }
 }
-button:hover,
-.download-link:hover {
-  background-color: #45a049;
-  transform: translateY(-2px);
+#excel_drop_zone.dragover::before {
+  content: "⬆️ Загрузите файлы";
+  display: block;
+  font-size: 18px;
+  font-weight: bold;
+  color: #1976d2;
+  margin-bottom: 10px;
+  animation: bounce 0.6s infinite alternate;
 }
-button:active,
-.download-link:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(-6px); }
 }
 
 /* Сообщения */
-.success-message {
-  color: #388e3c;
-  font-weight: 500;
-  margin-top: 10px;
-  text-align: right;
-}
-.error-message {
-  color: #d32f2f;
-  font-weight: 500;
-  margin-top: 10px;
-  text-align: center;
-}
+.success-message { color: #388e3c; font-weight: 500; margin-top: 10px; text-align: right; }
+.error-message { color: #d32f2f; font-weight: 500; margin-top: 10px; text-align: center; }
 
 /* Таблицы */
 table {
@@ -95,56 +66,16 @@ table {
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
-th, td {
-  padding: 12px;
-  border-bottom: 1px solid #eee;
-  text-align: left;
-}
-th {
-  background-color: #f5f5f5;
-  font-weight: 600;
-}
-tr:nth-child(even) {
-  background-color: #fafafa;
-}
+th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
+th { background-color: #f5f5f5; font-weight: 600; }
+tr:nth-child(even) { background-color: #fafafa; }
+.total-row td { font-weight: bold; border-top: 2px solid #1976d2; background: #f9f9f9; }
 
 /* Карточки */
-.page-wrapper {
-  padding: 2rem;
-  background-color: #f5f5f5;
-  min-height: 100vh;
-}
-.header {
-  margin-bottom: 2rem;
-}
-.header-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-.logout-btn {
-  background: linear-gradient(135deg, #e53935, #c62828);
-  color: #fff;
-  border: none;
-  padding: 0.6rem 1.4rem;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
-  box-shadow: 0 6px 16px rgba(229, 57, 53, 0.4);
-  transition: all 0.25s ease;
-}
-.logout-btn:hover {
-  background: #b71c1c;
-}
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 3rem;
-}
+.page-wrapper { padding: 2rem; background-color: #f5f5f5; min-height: 100vh; }
+.header { margin-bottom: 2rem; }
+.header-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
 .card {
   background: #fff;
   border-radius: 16px;
@@ -153,126 +84,28 @@ tr:nth-child(even) {
   text-align: center;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
-}
-.card-title {
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
-  opacity: 0.8;
-}
-.card-value {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #6a11cb;
-  margin: 0;
-}
-.analyzer-section {
-  margin-top: 2rem;
-  padding: 2rem;
-  border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-}
-/* Блок кнопок в ряд */
-.button-row {
-  display: flex;
-  gap: 12px;
-  margin-top: 12px;
-}
+.card:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0,0,0,0.12); }
+.card-title { font-size: 1.1rem; margin-bottom: 0.5rem; opacity: 0.8; }
+.card-value { font-size: 2rem; font-weight: 700; color: #6a11cb; margin: 0; }
+.analyzer-section { margin-top: 2rem; padding: 2rem; border-radius: 16px; background: #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
 
-.button-row button {
-  flex: 1;                /* все кнопки равной ширины */
-  min-width: 160px;       /* минимальная ширина */
-  padding: 12px 16px;
-  font-size: 15px;
-  font-weight: 500;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
-}
-
-/* Цвета для разных кнопок */
-.button-row .analyze {
-  background-color: #2e7d32;
-  color: #fff;
-}
-.button-row .download {
-  background-color: #388e3c;
-  color: #fff;
-}
-.button-row .reset {
-  background-color: #d32f2f;
-  color: #fff;
-}
-.button-row button:hover {
-  transform: translateY(-2px);
-  opacity: 0.9;
-}
+/* Лоадер */
 .loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(255,255,255,0.85);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
   z-index: 9999;
 }
-
 .spinner {
   border: 6px solid #f3f3f3;
   border-top: 6px solid #1976d2;
   border-radius: 50%;
-  width: 60px;
-  height: 60px;
+  width: 60px; height: 60px;
   animation: spin 1s linear infinite;
   margin-bottom: 15px;
 }
-
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-
-.total-row td {
-  font-weight: bold;
-  border-top: 2px solid #1976d2;
-  background: #f9f9f9;
-}
-/* 🔹 Анимация при перетаскивании файлов в drop-зону */
-#excel_drop_zone.dragover {
-  background-color: #e3f2fd;
-  border-color: #2196F3;
-  animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.4); }
-  70%  { box-shadow: 0 0 15px 15px rgba(33, 150, 243, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0); }
-}
-
-/* 🔹 Дополнительная иконка при dragover */
-#excel_drop_zone.dragover::before {
-  content: "⬆️ Загрузите файлы";
-  display: block;
-  font-size: 18px;
-  font-weight: bold;
-  color: #1976d2;
-  margin-bottom: 10px;
-  animation: bounce 0.6s infinite alternate;
-}
-
-@keyframes bounce {
-  from { transform: translateY(0); }
-  to   { transform: translateY(-6px); }
-}
-
-
 

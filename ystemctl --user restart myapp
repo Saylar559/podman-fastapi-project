@@ -1,0 +1,9 @@
+[0;1;32m●[0m myapp.service - FastAPI + Frontend + DB stack (podman-compose)
+     Loaded: loaded (]8;;file://user-Standard-PC-Q35-ICH9-2009/home/user/.config/systemd/user/myapp.service/home/user/.config/systemd/user/myapp.service]8;;; [0;1;32menabled[0m; preset: [0;1;32menabled[0m)
+     Active: [0;1;32mactive (exited)[0m since Fri 2025-10-03 10:36:10 MSK; 4s ago
+    Process: 55239 ExecStart=/bin/bash -lc podman-compose up -d (code=exited, status=0/SUCCESS)
+   Main PID: 55239 (code=exited, status=0/SUCCESS)
+        CPU: 348ms
+
+окт 03 10:36:10 user-Standard-PC-Q35-ICH9-2009 systemd[19391]: Starting myapp.service - FastAPI + Frontend + DB stack (podman-compose)...
+окт 03 10:36:10 user-Standard-PC-Q35-ICH9-2009 systemd[19391]: Finished myapp.service - FastAPI + Frontend + DB stack (podman-compose).

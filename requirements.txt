@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+psycopg2-binary
+sqlalchemy
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+pandas>=2.0.0
+openpyxl>=3.1.0   # нужен для чтения .xlsx
+xlrd>=2.0.1       # если вдруг будут старые .xls
+email-validator
+

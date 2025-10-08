@@ -168,7 +168,8 @@ logs-frontend:
 push:
 	git add .
 	git commit -m "$(msg)" || true
-	git push origin HEAD
+	git push origin $$(git rev-parse --abbrev-ref HEAD)
+
 
 
 

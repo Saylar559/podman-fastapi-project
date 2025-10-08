@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import "./LoginPage.css";   // подключаем стили
+import "./LoginPage.css";
 
 export default function LoginPage() {
   const { handleLogin, token, role, loading, error } = useAuth();
@@ -29,33 +29,42 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-wrapper">
-      <div className="login-card">
-        <h2 className="login-title">Вход</h2>
-        <form className="login-form" onSubmit={onSubmit}>
-          <div className="form-group">
-            <label>Логин</label>
+    <div className="lp-wrapper">
+      <div className="lp-card">
+        <h2 className="lp-title">Вход</h2>
+        <form className="lp-form" onSubmit={onSubmit}>
+          <div className="lp-group">
+            <label htmlFor="username">Логин</label>
             <input
+              id="username"
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
+              aria-describedby={error ? "login-error" : undefined}
             />
           </div>
-          <div className="form-group">
-            <label>Пароль</label>
+          <div className="lp-group">
+            <label htmlFor="password">Пароль</label>
             <input
+              id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              aria-describedby={error ? "login-error" : undefined}
             />
           </div>
-          {error && <div className="error-text">{error}</div>}
+          {error && (
+            <div id="login-error" className="lp-error" role="alert">
+              {error}
+            </div>
+          )}
           <button
             type="submit"
             disabled={submitting || loading}
-            className="primary-btn"
+            className="lp-submit-btn"
+            aria-label={submitting || loading ? "Вход в процессе..." : "Войти в систему"}
           >
             {submitting || loading ? "Входим..." : "Войти"}
           </button>
@@ -64,4 +73,3 @@ export default function LoginPage() {
     </div>
   );
 }
-

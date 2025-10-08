@@ -1,110 +1,204 @@
-:root {
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --danger: #dc2626;
-  --bg: #f3f4f6;
-  --text: #111827;
-  --card-bg: #ffffff;
-  --border: #e5e7eb;
-  --shadow: 0 6px 20px rgba(0,0,0,0.08);
-}
+/* Scoped styles for LoginPage - prefixed with lp- */
+/* Matches dashboard: primary #2563eb, light bg #f7f9fc, Roboto, consistent shadows/borders */
 
-body {
-  font-family: "Inter", sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  margin: 0;
-}
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
 
-.login-wrapper {
-  min-height: 100vh;
+.lp-wrapper {
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 2rem;
+  align-items: center;
+  min-height: 100vh;
+  background: var(--bg-primary, #f7f9fc); /* From dashboard vars */
+  padding: 1rem;
+  box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
+  color: var(--text-primary, #222);
 }
 
-.login-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: var(--shadow);
-  padding: 2rem;
+.lp-card {
+  background: var(--bg-card, #ffffff); /* White card bg */
+  border-radius: var(--border-radius-md, 8px);
+  padding: 2.5rem;
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(0,0,0,0.06)); /* Light shadow */
   width: 100%;
   max-width: 400px;
-  animation: fadeIn 0.4s ease;
-}
-
-.login-title {
-  font-size: 1.6rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
   text-align: center;
-  color: var(--primary);
+  animation: fadeInUp 0.5s ease;
+  border: 1px solid var(--border-light, #e2e8f0); /* Subtle border */
+  transition: var(--transition, all 0.2s ease);
 }
 
-.login-form {
+.lp-card:hover {
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.08)); /* Hover lift */
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lp-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary, #333);
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.5px;
+}
+
+.lp-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.form-group {
+.lp-group {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  text-align: left;
 }
 
-.form-group label {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #374151;
+.lp-group label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-secondary, #555);
+  margin-bottom: 0.5rem;
 }
 
-.form-group input {
-  padding: 0.65rem 0.8rem;
-  border-radius: 8px;
-  border: 1px solid var(--border);
+.lp-group input {
+  padding: 0.75rem;
+  border: 1px solid var(--border-color, #d1d5db);
+  border-radius: var(--border-radius, 6px);
   font-size: 1rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: var(--transition);
+  background: var(--bg-secondary, #ffffff);
+  color: var(--text-primary, #222);
 }
 
-.form-group input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(37,99,235,0.2);
+.lp-group input:focus {
   outline: none;
+  border-color: var(--primary-color, #2563eb);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); /* Focus ring like dashboard */
 }
 
-.error-text {
-  color: var(--danger);
+.lp-error {
+  color: var(--danger-color, #ef4444);
   font-size: 0.9rem;
   text-align: center;
+  padding: 0.75rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--border-radius, 6px);
+  animation: shake 0.5s ease-in-out;
+  margin-bottom: 1rem;
 }
 
-.primary-btn {
-  background: var(--primary);
-  color: #fff;
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.lp-submit-btn {
+  padding: 0.75rem;
   border: none;
-  border-radius: 8px;
-  padding: 0.8rem;
+  border-radius: var(--border-radius, 6px);
   font-size: 1rem;
   font-weight: 600;
+  background: var(--primary-color, #2563eb);
+  color: #fff;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  transition: var(--transition);
 }
 
-.primary-btn:hover {
-  background: var(--primary-hover);
-  transform: translateY(-1px);
+.lp-submit-btn:hover:not(:disabled) {
+  background: var(--primary-hover, #1e4fcf);
+  transform: translateY(-1px); /* Subtle lift like buttons */
+  box-shadow: var(--shadow-sm);
 }
 
-.primary-btn:disabled {
-  background: #9ca3af;
+.lp-submit-btn:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Dark mode support (matches dashboard) */
+.lp-wrapper.dark-mode {
+  background: var(--bg-primary); /* Inherits dark bg */
 }
 
+.lp-card.dark-mode {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border-color: var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+.lp-group label.dark-mode {
+  color: var(--text-secondary);
+}
+
+.lp-group input.dark-mode {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.lp-group input:focus.dark-mode {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); /* Dark focus */
+}
+
+.lp-error.dark-mode {
+  background: #451a1a; /* Dark red bg */
+  border-color: var(--danger-color);
+  color: #fca5a5;
+}
+
+.lp-submit-btn.dark-mode {
+  background: var(--primary-color);
+}
+
+/* Адаптивность (matches dashboard responsive) */
+@media (max-width: 768px) {
+  .lp-wrapper {
+    padding: 0.5rem;
+  }
+
+  .lp-card {
+    padding: 1.5rem;
+    border-radius: var(--border-radius, 6px);
+    max-width: 100%;
+  }
+
+  .lp-title {
+    font-size: 1.5rem;
+  }
+
+  .lp-form {
+    gap: 0.75rem;
+  }
+}
+
+/* Доступность: reduced motion, high contrast (from dashboard) */
+@media (prefers-reduced-motion: reduce) {
+  .lp-card,
+  .lp-submit-btn,
+  .lp-group input {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .lp-group input {
+    border-width: 2px;
+  }
+}

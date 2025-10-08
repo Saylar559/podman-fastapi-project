@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
-import api from "../api/api";   // ✅ используем общий инстанс
+import api from "../api/api";
+import "./EscrowAnalyzer.css";
 
 export default function EscrowAnalyzer() {
   const [files, setFiles] = useState([]);
@@ -14,7 +15,6 @@ export default function EscrowAnalyzer() {
   const dropRef = useRef();
 
   const handleFileChange = (e) => setFiles([...e.target.files]);
-
   const handleDrop = (e) => {
     e.preventDefault();
     dropRef.current.classList.remove("dragover");
@@ -22,14 +22,15 @@ export default function EscrowAnalyzer() {
       setFiles([...e.dataTransfer.files]);
     }
   };
-
   const handleDragOver = (e) => {
     e.preventDefault();
     dropRef.current.classList.add("dragover");
   };
-
   const handleDragLeave = () => {
     dropRef.current.classList.remove("dragover");
+  };
+  const removeFile = (index) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleAnalyze = async () => {
@@ -47,9 +48,7 @@ export default function EscrowAnalyzer() {
     }
 
     try {
-      const res = await api.post("/analyze-excel", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await api.post("/analyze-excel", formData);
       setResults(res.data.results || []);
       setErrors(res.data.errors || []);
     } catch (err) {
@@ -94,7 +93,6 @@ export default function EscrowAnalyzer() {
     setExcludeNegative(true);
   };
 
-  // 🔹 Форматирование суммы
   const formatAmount = (value) =>
     Number(value || 0).toLocaleString("ru-RU", {
       style: "currency",
@@ -103,57 +101,56 @@ export default function EscrowAnalyzer() {
       maximumFractionDigits: 2,
     });
 
-  // 🔹 Подсчёт итога
   const totalSum = results.reduce((acc, row) => acc + (row["Сумма"] || 0), 0);
 
   return (
-    <div>
+    <div className="escrow-analyzer">
       <h2 className="title">Остатки на счетах ЭСКРОУ</h2>
       <p className="subtitle">Загрузите Excel‑файлы для анализа</p>
 
-      {/* Фильтры */}
       <div className="filters">
-        <label>
-          <input
-            type="checkbox"
-            checked={filterByPeriod}
-            onChange={(e) => setFilterByPeriod(e.target.checked)}
-          />{" "}
-          Фильтровать по периоду
-        </label>
-
-        {filterByPeriod && (
-          <div style={{ display: "flex", gap: "10px", marginTop: "8px" }}>
+        <div className="filter-group">
+          <label className="filter-checkbox">
             <input
-              type="number"
-              value={year}
-              min="2000"
-              max="2100"
-              onChange={(e) => setYear(e.target.value)}
+              type="checkbox"
+              checked={filterByPeriod}
+              onChange={(e) => setFilterByPeriod(e.target.checked)}
             />
-            <select value={month} onChange={(e) => setMonth(e.target.value)}>
-              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                <option key={m} value={m}>
-                  {new Date(2000, m - 1).toLocaleString("ru-RU", { month: "long" })}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+            <span>Фильтровать по периоду</span>
+          </label>
 
-        <label style={{ display: "block", marginTop: "8px" }}>
-          <input
-            type="checkbox"
-            checked={excludeNegative}
-            onChange={(e) => setExcludeNegative(e.target.checked)}
-          />{" "}
-          Исключать отрицательные суммы
-        </label>
+          {filterByPeriod && (
+            <div className="filter-period">
+              <input
+                type="number"
+                value={year}
+                min="2000"
+                max="2100"
+                onChange={(e) => setYear(e.target.value)}
+              />
+              <select value={month} onChange={(e) => setMonth(e.target.value)}>
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                  <option key={m} value={m}>
+                    {new Date(2000, m - 1).toLocaleString("ru-RU", { month: "long" })}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <label className="filter-checkbox">
+            <input
+              type="checkbox"
+              checked={excludeNegative}
+              onChange={(e) => setExcludeNegative(e.target.checked)}
+            />
+            <span>Исключать отрицательные суммы</span>
+          </label>
+        </div>
       </div>
 
-      {/* Drag & Drop */}
       <div
-        id="excel_drop_zone"
+        className="drop-zone"
         ref={dropRef}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -170,20 +167,30 @@ export default function EscrowAnalyzer() {
         />
       </div>
 
-      {/* Кнопки */}
+      {files.length > 0 && (
+        <ul className="file-list">
+          {files.map((file, idx) => (
+            <li key={idx} className="file-item">
+              <span className="file-name">{file.name}</span>
+              <span className="file-size">{(file.size / 1024).toFixed(1)} KB</span>
+              <button className="file-remove" onClick={() => removeFile(idx)}>✖</button>
+            </li>
+          ))}
+        </ul>
+      )}
+
       <div className="button-row">
         <button className="analyze" onClick={handleAnalyze} disabled={loading}>
           {loading ? "⏳ Обработка..." : "🚀 Анализировать"}
         </button>
-        <button className="download" onClick={handleDownload} disabled={loading || !results.length}>
+        <button className="button button-download" onClick={handleDownload} disabled={loading || !results.length}>
           СКАЧАТЬ
         </button>
-        <button className="reset" onClick={handleReset}>
+        <button className="button button-reset" onClick={handleReset}>
           Сбросить
         </button>
       </div>
 
-      {/* Результаты */}
       {results.length > 0 && (
         <div>
           <h3 className="subtitle">Результаты анализа</h3>
@@ -210,7 +217,6 @@ export default function EscrowAnalyzer() {
         </div>
       )}
 
-      {/* Ошибки */}
       {errors.length > 0 && (
         <div className="error-message">
           <h3>Ошибки обработки</h3>
@@ -224,17 +230,14 @@ export default function EscrowAnalyzer() {
         </div>
       )}
 
-      {/* Нет данных */}
       {results.length === 0 && !loading && errors.length === 0 && (
         <div className="error-message">Нет данных для отображения</div>
       )}
 
-      {/* Успех */}
       {results.length > 0 && errors.length === 0 && !loading && (
         <div className="success-message">Обработка завершена успешно</div>
       )}
 
-      {/* Загрузка */}
       {loading && (
         <div className="loading-overlay">
           <div className="spinner"></div>
